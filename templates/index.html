@@ -1,0 +1,241 @@
+{% include 'header.html' %}
+
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>日期</th>
+                        <th>型号</th>
+                        <th>件数</th>
+                        <th>双数</th>
+                        <th>单价</th>
+                        <th>折扣</th>
+                        <th>总价</th>
+                        <th>次品</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">录入订单</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <form class="form-horizontal" role="form" id="order_form">
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">日期</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="trans_day" name="trans_day" placeholder="日期">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">型号</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="model" name="model" placeholder="型号" min="0">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">件数</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="packages" name="packages" placeholder="件数" value="1" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">双数</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="pairs" name="pairs" placeholder="双数" value="8" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">单价</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="price" name="price" placeholder="单价" min="0">
+                        </div>
+                    </div>
+
+                     <div class="form-group">
+                        <label class="col-sm-2 control-label">优惠</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="discount" name="discount" placeholder="优惠" value="0" min="0">
+                        </div>
+                    </div>
+
+                     <div class="form-group">
+                        <label class="col-sm-2 control-label">总价</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="amount" name="amount" placeholder="总价" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">次品</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                              <input type="radio" name="defective" id="defective-1" value="1" checked> 否
+                            </label>
+
+                            <label class="radio-inline">
+                              <input type="radio" name="defective" id="defective-0" value="0"> 是
+                            </label>
+                        </div>
+                    </div>
+
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button id="save_order" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% include 'scripts.html' %}
+
+<script type="text/javascript">
+    $().ready(function () {
+
+        $.ajax({
+            type: 'GET',
+            url: '/orders/'+currentDate(),
+            dataType: 'json',
+            success: function (data) {
+
+                $.each(data, function (i, item) {
+                    $('tbody').append(
+                            "<tr>" +
+                            "   <th>" + item.order_id + "</th>" +
+                            "   <th>" + item.trans_day + "</th>" +
+                            "   <th>" + item.model + "</th>" +
+                            "   <th>" + item.packages + "</th>" +
+                            "   <th>" + item.pairs + "</th>" +
+                            "   <th>" + item.price + "</th>" +
+                            "   <th>" + item.discount + "</th>" +
+                            "   <th>" + item.amount + "</th>" +
+                            "   <th>" + isDefective(item.defective) + "</th>" +
+                            "   <th>" + "删除 修改 复制" + "</th>" +
+                            "</tr>");
+                })
+
+            }
+        });
+
+
+        // 是否残次品
+        function isDefective(defective) {
+            if(defective == '0'){
+                return '是';
+            }else {
+                return '-';
+            }
+        }
+
+
+        // 初始化表单日期
+        $('#trans_day').val(currentDate());
+
+
+        // 计算订单总价
+        function calAmount() {
+
+            var packages = $('#packages').val();
+            var pairs = $('#pairs').val();
+            var discount = $('#discount').val();
+            var price = $('#price').val();
+
+            console.log(packages);
+            console.log(pairs);
+            console.log(discount);
+            console.log(price);
+
+
+            if(!isNaN(packages) && !isNaN(pairs) && !isNaN(discount) && !isNaN(price)
+                && packages!='' && pairs!='' && discount!='' && price!=''){
+                var amount =  packages * pairs * price - discount
+                console.log(amount)
+                $('#amount').val(amount);
+                return amount
+            }else {
+                return 0
+            }
+        }
+
+        // 单价、件数、双数、折扣 失焦后计算总价
+        $('#packages,#pairs,#discount,#price').blur(function () {
+            calAmount();
+        });
+
+        $('#save_order').click(function () {
+
+
+            if(calAmount() == 0){
+                alert('小笨蛋，又忘记填东西了吧~');
+                return;
+            }
+
+
+            $('#order_form').ajaxSubmit({
+                url:'/orders',
+                type:'PUT',
+                dataType:'json',
+                success:function(data){
+                    console.log('return data' + data);
+                    if (data == 0) {
+                        alert("2333333 保存成功啦~");
+    {#                    $("#add-order_form")[0].reset();#}
+    {#                    $("#id").val(0);#}
+    {#                    qry(true);#}
+    {#                    $(".add-panel").hide();#}
+                    }else{
+                        alert("哎哎呀 好像出错了。再试一次，乖~ 不行就找开发哥哥！");
+                    }
+                }
+
+            });
+
+
+        });
+
+
+
+
+
+    });
+</script>
+</body>
+</html>
