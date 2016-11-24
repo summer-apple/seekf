@@ -18,7 +18,7 @@ class OrderService:
         return self.mysql.fetchone("select * from t_order where order_id=%s", [order_id, ])
 
     def create_order(self, args):
-        sql = "insert into t_order(trans_day,model,packages,pairs,price,discount,amount) values(%s,%s,%s,%s,%s,%s,%s)"
+        sql = "insert into t_order(trans_day,model,packages,pairs,price,discount,amount,defective) values(%s,%s,%s,%s,%s,%s,%s,%s)"
         self.mysql.execute(sql, args)
 
     def delete_order_by_id(self,order_id):

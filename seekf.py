@@ -1,9 +1,10 @@
 import datetime
 
 import simplejson
-from flask import Flask,request, render_template
-
+from flask import Flask,request, render_template, send_from_directory
+from export import Exporter
 from order import OrderService
+
 
 """
 seekf
@@ -18,28 +19,23 @@ seekf
 app = Flask(__name__)
 odsvs = OrderService()
 
-class Order():
-    def __init__(self, **kvs):
-        self.__dict__.update(kvs)
 
-
-@app.route('/', methods=['POST','GET'])
+@app.route('/', methods=['GET'])
 def hello_world():
-    if request.method == 'GET':
-        return render_template('index.html')
-    else:
-        return request.form['name']
+    return render_template('index.html')
+
 
 @app.route('/<filename>', methods=['GET'])
 def route_to_page(filename):
     return render_template(filename)
 
+
+
 @app.route('/orders/<trans_day>', methods=['GET'])
 def get_orders(trans_day):
     if trans_day is None or trans_day == '':
         trans_day = datetime.datetime.now().strftime('%Y-%m-%d')
-    # TODO
-    trans_day = '2016-10-23'
+
     result = odsvs.get_orders_by_date(trans_day)
     return simplejson.dumps(result)
 
@@ -61,6 +57,7 @@ def add_order():
     args.append(x['price'])
     args.append(x['discount'])
     args.append(x['amount'])
+    args.append(x['defective'])
 
     try:
         odsvs.create_order(args)
@@ -88,9 +85,20 @@ def stat_day_by_model(trans_day):
     return simplejson.dumps(result)
 
 
+@app.route('/favicon.ico', methods=['GET'])
+def favicon():
+    return ''
+
+
+@app.route('/export/<trans_date>', methods=['GET'])
+def export(trans_date):
+    e = Exporter()
+    filename = e.export(trans_date)
+    return send_from_directory('excel',filename,as_attachment=True)
+
 
 
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')

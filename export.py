@@ -1,10 +1,11 @@
 import openpyxl
 from order import OrderService
 
-odsvs = OrderService()
+
 
 class Exporter:
-
+    def __init__(self):
+        self.odsvs = OrderService()
 
     def _is_defective(self, defective):
         if defective == '0':
@@ -21,7 +22,7 @@ class Exporter:
         model_sheet = wb.create_sheet('统计-型号',0)
 
 
-        model = odsvs.stat_by_model(trans_day)
+        model = self.odsvs.stat_by_model(trans_day)
         model_sheet.append(['型号', '件数', '双数', '单价', '折扣', '总价'])
         for d in model:
             model_sheet.append([
@@ -46,7 +47,7 @@ class Exporter:
 
 
         model_price_sheet = wb.create_sheet('统计-型号-价格',1)
-        model_price = odsvs.stat_by_model_price(trans_day)
+        model_price = self.odsvs.stat_by_model_price(trans_day)
         model_price_sheet.append(['型号', '件数', '双数', '单价', '折扣', '总价'])
         for d in model_price:
             model_price_sheet.append([
@@ -64,7 +65,7 @@ class Exporter:
 
 
         detail_sheet = wb.create_sheet('明细',2)
-        detail = odsvs.get_orders_by_date(trans_day)
+        detail = self.odsvs.get_orders_by_date(trans_day)
         detail_sheet.append(['型号','件数','双数','单价','折扣','总价','次品'])
         for d in detail:
             detail_sheet.append([
@@ -77,8 +78,9 @@ class Exporter:
                 self._is_defective(d['defective'])
 
             ])
+        wb.save(filename='excel/%s.xlsx' % trans_day.replace('-',''))
 
-        wb.save(filename='%s日叶卡销售中心销售情况明细.xlsx' % trans_day)
+        return '%s.xlsx' % trans_day.replace('-','')
 
 
 

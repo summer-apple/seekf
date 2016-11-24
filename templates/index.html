@@ -35,94 +35,6 @@
 
 
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                        class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel">录入订单</h4>
-            </div>
-            <div class="modal-body">
-
-
-                <form class="form-horizontal" role="form" id="order_form">
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">日期</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="trans_day" name="trans_day" placeholder="日期">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">型号</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="model" name="model" placeholder="型号" min="0">
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">件数</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="packages" name="packages" placeholder="件数" value="1" min="1">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">双数</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="pairs" name="pairs" placeholder="双数" value="8" min="1">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">单价</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="price" name="price" placeholder="单价" min="0">
-                        </div>
-                    </div>
-
-                     <div class="form-group">
-                        <label class="col-sm-2 control-label">优惠</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="discount" name="discount" placeholder="优惠" value="0" min="0">
-                        </div>
-                    </div>
-
-                     <div class="form-group">
-                        <label class="col-sm-2 control-label">总价</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" id="amount" name="amount" placeholder="总价" readonly>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">次品</label>
-                        <div class="col-sm-10">
-                            <label class="radio-inline">
-                              <input type="radio" name="defective" id="defective-1" value="1" checked> 否
-                            </label>
-
-                            <label class="radio-inline">
-                              <input type="radio" name="defective" id="defective-0" value="0"> 是
-                            </label>
-                        </div>
-                    </div>
-
-                </form>
-
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button id="save_order" type="button" class="btn btn-primary">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 {% include 'scripts.html' %}
@@ -130,12 +42,39 @@
 <script type="text/javascript">
     $().ready(function () {
 
-        $.ajax({
+        var date = currentDate();
+        loadDetial(date);
+
+
+        $('#search-input').blur(function () {
+            if($('#search-input').val()!='' && checkDate($('#search-input').val())){
+                date = $('#search-input').val();
+            }
+        });
+
+        $('#search-btn').click(function () {
+            if($('#search-input').val()!='' && checkDate($('#search-input').val())){
+                loadDetial($('#search-input').val());
+            }
+        });
+
+
+        $('#export—btn').click(function () {
+            if($('#search-input').val()!='' && checkDate($('#search-input').val())){
+                window.location.href='/export/'+date;
+            }
+
+        });
+
+
+
+        function loadDetial(date) {
+            $.ajax({
             type: 'GET',
-            url: '/orders/'+currentDate(),
+            url: '/orders/'+ date,
             dataType: 'json',
             success: function (data) {
-
+                $('tbody').empty();
                 $.each(data, function (i, item) {
                     $('tbody').append(
                             "<tr>" +
@@ -152,8 +91,10 @@
                             "</tr>");
                 })
 
-            }
-        });
+                }
+             });
+        }
+
 
 
         // 是否残次品

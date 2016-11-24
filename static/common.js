@@ -1,17 +1,8 @@
-function checkDateTime(str)
-{
-    var reg = /^(\d+)-(\d{ 1,2 })-(\d{ 1,2 }) (\d{ 1,2 }):(\d{ 1,2 }):(\d{ 1,2 })$/;
-    var r = str.match(reg);
-    if(r==null)return false;
-    r[2]=r[2]-1;
-    var d= new Date(r[1],r[2],r[3],r[4],r[5],r[6]);
-    if(d.getFullYear()!=r[1])return false;
-    if(d.getMonth()!=r[2])return false;
-    if(d.getDate()!=r[3])return false;
-    if(d.getHours()!=r[4])return false;
-    if(d.getMinutes()!=r[5])return false;
-    if(d.getSeconds()!=r[6])return false;
-    return true;
+function checkDate(str) {
+var r = str.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/);
+if(r==null)return false;
+var d= new Date(r[1], r[3]-1, r[4]);
+return (d.getFullYear()==r[1]&&(d.getMonth()+1)==r[3]&&d.getDate()==r[4]);
 }
 
 function currentDate()
