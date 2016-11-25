@@ -1,6 +1,6 @@
 import openpyxl
 from order import OrderService
-
+import os
 
 
 class Exporter:
@@ -78,7 +78,9 @@ class Exporter:
                 self._is_defective(d['defective'])
 
             ])
-        wb.save(filename='excel/%s.xlsx' % trans_day.replace('-',''))
+
+
+        wb.save(filename='/Users/summer/PycharmProjects/seekf/excel/%s.xlsx' % trans_day.replace('-',''))
 
         return '%s.xlsx' % trans_day.replace('-','')
 

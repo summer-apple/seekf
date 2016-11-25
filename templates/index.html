@@ -43,7 +43,9 @@
     $().ready(function () {
 
         var date = currentDate();
-        loadDetial(date);
+        // 初始化表单日期
+        $('#trans_day').val(date);
+        qry(date);
 
 
         $('#search-input').blur(function () {
@@ -53,22 +55,30 @@
         });
 
         $('#search-btn').click(function () {
-            if($('#search-input').val()!='' && checkDate($('#search-input').val())){
-                loadDetial($('#search-input').val());
+            if($('#search-input').val()==''){
+                qry(date);
+            }else{
+                if(checkDate($('#search-input').val())){
+                    qry($('#search-input').val());
+                }
             }
         });
 
 
         $('#export—btn').click(function () {
-            if($('#search-input').val()!='' && checkDate($('#search-input').val())){
+            if($('#search-input').val()==''){
                 window.location.href='/export/'+date;
+            }else{
+                if(checkDate($('#search-input').val())){
+                    window.location.href='/export/'+date;
+                }
             }
 
         });
 
 
 
-        function loadDetial(date) {
+        function qry(date) {
             $.ajax({
             type: 'GET',
             url: '/orders/'+ date,
@@ -77,23 +87,45 @@
                 $('tbody').empty();
                 $.each(data, function (i, item) {
                     $('tbody').append(
-                            "<tr>" +
-                            "   <th>" + item.order_id + "</th>" +
-                            "   <th>" + item.trans_day + "</th>" +
-                            "   <th>" + item.model + "</th>" +
-                            "   <th>" + item.packages + "</th>" +
-                            "   <th>" + item.pairs + "</th>" +
-                            "   <th>" + item.price + "</th>" +
-                            "   <th>" + item.discount + "</th>" +
-                            "   <th>" + item.amount + "</th>" +
-                            "   <th>" + isDefective(item.defective) + "</th>" +
-                            "   <th>" + "删除 修改 复制" + "</th>" +
+                            "<tr class='order-"+ item.order_id + "'>" +
+                            "   <td>" + item.order_id + "</td>" +
+                            "   <td>" + item.trans_day + "</td>" +
+                            "   <td>" + item.model + "</td>" +
+                            "   <td>" + item.packages + "</td>" +
+                            "   <td>" + item.pairs + "</td>" +
+                            "   <td>" + item.price + "</td>" +
+                            "   <td>" + item.discount + "</td>" +
+                            "   <td>" + item.amount + "</td>" +
+                            "   <td>" + isDefective(item.defective) + "</td>" +
+                            "   <td><a class='btn btn-primary btn-single btn-sm' onclick='del("+item.order_id+")'>删除</a></td>"+
                             "</tr>");
                 })
 
                 }
              });
         }
+
+
+
+        //删除
+
+	window.del = function(id){
+
+			$.ajax({
+                url:'/orders/'+id,
+                type:'DELETE',
+                success:function(data){
+                	if (data==0) {
+                    	alert("删除成功...");
+                   		$('.order-'+id).remove();
+                    }else{
+                    	alert("无法删除...");
+
+                    }
+
+                }
+            });
+	}
 
 
 
@@ -107,8 +139,9 @@
         }
 
 
-        // 初始化表单日期
-        $('#trans_day').val(currentDate());
+
+
+
 
 
         // 计算订单总价
@@ -119,16 +152,12 @@
             var discount = $('#discount').val();
             var price = $('#price').val();
 
-            console.log(packages);
-            console.log(pairs);
-            console.log(discount);
-            console.log(price);
+
 
 
             if(!isNaN(packages) && !isNaN(pairs) && !isNaN(discount) && !isNaN(price)
                 && packages!='' && pairs!='' && discount!='' && price!=''){
                 var amount =  packages * pairs * price - discount
-                console.log(amount)
                 $('#amount').val(amount);
                 return amount
             }else {
@@ -155,13 +184,10 @@
                 type:'PUT',
                 dataType:'json',
                 success:function(data){
-                    console.log('return data' + data);
                     if (data == 0) {
                         alert("2333333 保存成功啦~");
-    {#                    $("#add-order_form")[0].reset();#}
-    {#                    $("#id").val(0);#}
-    {#                    qry(true);#}
-    {#                    $(".add-panel").hide();#}
+                        qry(date);
+                        $(".modal-header button").click();
                     }else{
                         alert("哎哎呀 好像出错了。再试一次，乖~ 不行就找开发哥哥！");
                     }
