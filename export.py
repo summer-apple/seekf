@@ -80,7 +80,7 @@ class Exporter:
             ])
 
 
-        wb.save(filename='/Users/summer/PycharmProjects/seekf/excel/%s.xlsx' % trans_day.replace('-',''))
+        wb.save(filename='/root/sites/seekf/excel/%s.xlsx' % trans_day.replace('-',''))
 
         return '%s.xlsx' % trans_day.replace('-','')
 
