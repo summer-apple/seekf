@@ -1,12 +1,14 @@
+# encoding:utf-8
 import pymysql
 
 
 class MySQLHelper:
     config = {'host': 'localhost',
               'user': 'root',
-              'password': '',
+              'password': '123456',
               'port': 3306,
-              'database': 'seekf'
+              'database': 'seekf',
+              'charset':'utf8'
               }
 
     cnn = pymysql.connect(**config)

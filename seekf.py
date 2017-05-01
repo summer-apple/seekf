@@ -1,9 +1,18 @@
+# encoding:utf-8
 import datetime
+import os
 
 import simplejson
 from flask import Flask,request, render_template, send_from_directory
+from flask import flash
+from flask import redirect
+from flask import url_for
+from werkzeug.utils import secure_filename
+from global_param  import *
+
 from export import Exporter
 from order import OrderService
+from input import ExcelParser
 
 
 """
@@ -15,8 +24,11 @@ seekf
 	月汇总
 """
 
+ALLOWED_EXTENSIONS = set(['xls', 'xlsx'])
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 odsvs = OrderService()
 
 
@@ -96,6 +108,51 @@ def export(trans_date):
     filename = e.export(trans_date)
     return send_from_directory('excel',filename,as_attachment=True)
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = file.filename
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
+
+            parser = ExcelParser(filename)
+            parser.parser()
+
+
+            return redirect('/export/'+ filename.split('.')[0])
+
+
+
+    return '''
+    <!doctype html>
+    <title>上传原始数据文件</title>
+    <h1>格式：2017-04-21.xlsx 月份日期的0不能省略</h1>
+    <h1>上传原始数据文件</h1>
+    <h2>点击上传后会自动下载统计好的文件</h2>
+    <h3>如有问题请呼叫你的大可爱</h3>
+    <form method=post enctype=multipart/form-data>
+      <input type='file' name='file' style="width:300px;height:30px;display:block;">
+      <br><br>
+      <input type='submit' value='上传' style="width:100px;height:30px;display:block;">
+    </form>
+    '''
 
 
 

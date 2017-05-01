@@ -1,6 +1,8 @@
+# encoding:utf-8
 import openpyxl
 from order import OrderService
 import os
+from global_param import *
 
 
 class Exporter:
@@ -79,14 +81,13 @@ class Exporter:
 
             ])
 
+        wb.save(filename=EXPORT_FOLDER+'%s.xlsx' % trans_day)
 
-        wb.save(filename='/root/sites/seekf/excel/%s.xlsx' % trans_day.replace('-',''))
-
-        return '%s.xlsx' % trans_day.replace('-','')
+        return '%s.xlsx' % trans_day
 
 
 
 
 if __name__ == '__main__':
     e = Exporter()
-    e.export('2016-10-23')
+    e.export('2017-04-21')
