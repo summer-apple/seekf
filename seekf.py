@@ -127,7 +127,7 @@ def upload_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = file.filename
+            filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
 
@@ -136,7 +136,7 @@ def upload_file():
             parser.parser()
 
 
-            return redirect('/export/'+ filename.split('.')[0])
+            return redirect('/export/'+ filename)
 
 
 

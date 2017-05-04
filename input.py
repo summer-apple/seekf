@@ -4,6 +4,7 @@ from mysqlconn import MySQLHelper
 import pandas as pd
 import fire
 from global_param import *
+import datetime
 # ./
 # 2017年4月23日叶卡销售明细表.xlsx
 # 2017年4月26日叶卡销售明细表.xlsx
@@ -61,14 +62,14 @@ class ExcelParser:
 
         data = list()
         for i,r in pds.iterrows():
-            data.append([r.trans_day,r.model,r.packages,r.pairs,r.price,r.discount,r.amount,r.defective])
+            data.append(['',r.model,r.packages,r.pairs,r.price,r.discount,r.amount,r.defective])
 
 
         # for d in data:
         #     print(d)
 
 
-        self.mysql_helper.execute("delete from t_order where trans_day='%s'" % self.trans_day)
+        self.mysql_helper.execute("truncate table t_order")
 
         sql = "insert into t_order(trans_day,model,packages,pairs,price,discount,amount,defective) values(%s,%s,%s,%s,%s,%s,%s,%s)"
         self.mysql_helper.executemany(sql,data)
